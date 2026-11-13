@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生日快乐 🎂</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+  min-height: 110vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Arial', sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 烟花画布 */
+#fireworks {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* 祝福文字 */
+.title {
+  position: relative;
+  z-index: 10;
+  font-size: 45px;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 0 0 20px #ff6b6b, 0 0 40px #ff6b6b, 0 0 60px #ffd700;
+  animation: glow 2s ease-in-out infinite alternate;
+  margin-bottom: 80px;
+  text-align: center;
+}
+@keyframes glow {
+  from { text-shadow: 0 0 10px #ff6b6b, 0 0 20px #ff6b6b, 0 0 30px #ffd700; }
+  to { text-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700, 0 0 60px #ff6b6b; }
+}
+
+/* 蛋糕容器 */
+.cake-container {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ============ 数字18蜡烛 ============ */
+.candle-18 {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  margin-bottom: -8px;
+  position: relative;
+  z-index: 20;
+  cursor: pointer;
+}
+
+/* 数字1 - 金色蜡烛 */
+.digit-1 {
+  position: relative;
+  width: 30px;
+  height: 120px;
+  background: linear-gradient(90deg, #ffd700, #fff3b0, #ffd700, #daa520);
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.3);
+}
+.digit-1::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 16px;
+  background: linear-gradient(180deg, #8B4513, #654321);
+  border-radius: 3px;
+}
+.digit-1::after {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 90px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+/* 数字8 - 镂空双环 */
+.digit-8 {
+  position: relative;
+  width: 80px;
+  height: 120px;
+}
+.digit-8 .ring {
+  position: absolute;
+  left: 0;
+  width: 80px;
+  height: 55px;
+  border: 12px solid;
+  border-image: linear-gradient(135deg, #ff6b6b, #ff8fa3, #ffd700) 1;
+  border-radius: 50%;
+  box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4), inset 0 0 15px rgba(255, 215, 0, 0.2);
+}
+.digit-8 .ring.top { top: 0; }
+.digit-8 .ring.bottom { bottom: 0; }
+.digit-8 .ring::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.2), transparent 70%);
+  pointer-events: none;
+}
+.digit-8::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 16px;
+  background: linear-gradient(180deg, #8B4513, #654321);
+  border-radius: 3px;
+  z-index: 2;
+}
+
+/* 火焰 */
+.flame {
+  position: absolute;
+  width: 24px;
+  height: 38px;
+  background: radial-gradient(circle at 50% 80%, #fff7ae, #ffdd55 40%, #ff8800 75%, transparent);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  top: -42px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: flicker 0.3s ease-in-out infinite alternate;
+  box-shadow: 0 0 20px #ffaa00, 0 0 40px #ff6600, 0 0 60px rgba(255, 100, 0, 0.5);
+  z-index: 3;
+  transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+.flame::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 16px;
+  background: radial-gradient(circle, #fff, #aaddff 60%, transparent);
+  border-radius: 50%;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+@keyframes flicker {
+  0% { transform: translateX(-50%) scale(1) rotate(-2deg); }
+  100% { transform: translateX(-50%) scale(1.1) rotate(2deg); }
+}
+
+/* 吹灭后的烟雾效果 */
+.smoke {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle, rgba(200,200,200,0.6), transparent 70%);
+  border-radius: 50%;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+.smoke.active {
+  animation: smokeRise 3.5s ease-out forwards;
+}
+@keyframes smokeRise {
+  0% { opacity: 0.7; transform: translateX(-50%) translateY(0) scale(0.5); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-60px) scale(2); }
+}
+
+/* ============ 精致蛋糕 ============ */
+.cake {
+  position: relative;
+  z-index: 10;
+  width: 320px;
+  height: 200px;
+}
+
+/* 顶层 - 白色奶油 + 裱花 */
+.cake-top {
+  width: 230px;
+  height: 60px;
+  background: linear-gradient(180deg, #fff, #fdf2f5);
+  border-radius: 20px 20px 8px 8px;
+  margin: 0 auto;
+  position: relative;
+  box-shadow: inset 0 -8px 20px rgba(255, 182, 193, 0.4), 0 4px 15px rgba(0,0,0,0.15);
+}
+.cake-top::before {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  background: radial-gradient(circle at 12px 0, #fff 10px, transparent 11px) repeat-x;
+  background-size: 24px 20px;
+  filter: drop-shadow(0 2px 3px rgba(255, 182, 193, 0.3));
+}
+.cake-top::after {
+  content: '🍓 🍓 🍓🍓 🍓 🍓🍓';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
+  letter-spacing: 12px;
+}
+
+/* 中层 - 粉色奶油 + 花纹 */
+.cake-mid {
+  width: 270px;
+  height: 65px;
+  background: linear-gradient(180deg, #ffb6c1, #ff9eb5);
+  border-radius: 8px;
+  margin: 0 auto;
+  position: relative;
+  box-shadow: inset 0 -8px 20px rgba(255, 100, 130, 0.3), 0 4px 15px rgba(0,0,0,0.15);
+}
+.cake-mid::before {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 100%;
+  height: 16px;
+  background: radial-gradient(circle at 15px 0, #ffb6c1 8px, transparent 9px) repeat-x;
+  background-size: 30px 16px;
+}
+.cake-mid::after {
+  content: '❀ ❀ ❀ ❀ ❀ ❀ ❀';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 13px;
+  letter-spacing: 10px;
+  opacity: 0.8;
+  text-shadow: 0 1px 3px rgba(255, 100, 130, 0.5);
+}
+
+/* 底层 - 深粉 + 金边 */
+.cake-bottom {
+  width: 320px;
+  height: 70px;
+  background: linear-gradient(180deg, #ff8fa3, #ff6b81);
+  border-radius: 8px 8px 25px 25px;
+  margin: 0 auto;
+  position: relative;
+  box-shadow: inset 0 -10px 25px rgba(255, 50, 100, 0.3), 0 10px 35px rgba(0,0,0,0.3);
+}
+.cake-bottom::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 10%;
+  width: 80%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #ffd700, #fff3b0, #ffd700, transparent);
+  border-radius: 2px;
+}
+.cake-bottom::after {
+  content: '✨ ✨ ✨ ✨ ✨';
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  letter-spacing: 15px;
+  opacity: 0.9;
+}
+
+/* 蛋糕盘 */
+.plate {
+  width: 360px;
+  height: 18px;
+  background: linear-gradient(180deg, #e8e8e8, #c0c0c0);
+  border-radius: 50%;
+  margin: -5px auto 0;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  position: relative;
+  z-index: 5;
+}
+
+/* 气球 */
+.balloon {
+  position: fixed;
+  z-index: 5;
+  border-radius: 50%;
+  opacity: 0.85;
+  animation: floatUp linear infinite;
+  pointer-events: none;
+}
+@keyframes floatUp {
+  0% { transform: translateY(110vh) rotate(0deg); }
+  100% { transform: translateY(-110vh) rotate(360deg); }
+}
+
+/* 音乐按钮 */
+.music-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 100;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #ff6b6b, #ffd700);
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(255, 107, 107, 0.5);
+  transition: all 0.3s;
+}
+.music-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 25px rgba(255, 107, 107, 0.7);
+}
+
+/* 祝福语 */
+.blessing {
+  position: relative;
+  z-index: 10;
+  margin-top: 20px;
+  font-size: 20px;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  letter-spacing: 3px;
+}
+
+/* 提示文字 */
+.hint {
+  position: relative;
+  z-index: 10;
+  margin-top: 30px;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 2px;
+  animation: hintPulse 2s ease-in-out infinite;
+}
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ============ 信件弹窗 ============ */
+.letter-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.letter-overlay.show {
+  display: flex;
+  animation: fadeIn 0.4s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 信件主体 */
+.letter-card {
+  position: relative;
+  width: 360px;
+  min-height: 280px;
+  background: linear-gradient(180deg, #fffdf5, #fef5e7);
+  border-radius: 12px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+  padding: 35px 30px 30px;
+  animation: letterPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+@keyframes letterPop {
+  from { transform: scale(0.5) rotate(-3deg); opacity: 0; }
+  to { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* 信纸横线 */
+.letter-card::before {
+  content: '';
+  position: absolute;
+  top: 70px;
+  left: 25px;
+  right: 25px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 182, 193, 0.5), transparent);
+}
+.letter-card::after {
+  content: '';
+  position: absolute;
+  bottom: 60px;
+  left: 25px;
+  right: 25px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 182, 193, 0.5), transparent);
+}
+
+/* 信纸顶部装饰 */
+.letter-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.letter-header .stamp {
+  font-size: 28px;
+  display: block;
+  margin-bottom: 5px;
+}
+.letter-header .letter-title {
+  font-size: 22px;
+  font-weight: bold;
+  color: #e8558a;
+  letter-spacing: 4px;
+  text-shadow: 0 1px 3px rgba(255, 100, 130, 0.2);
+}
+
+/* 信纸内容 */
+.letter-body {
+  text-align: center;
+  font-size: 16px;
+  color: #6b4f3a;
+  line-height: 2;
+  letter-spacing: 1px;
+  padding: 10px 0;
+}
+.letter-body .heart {
+  font-size: 20px;
+  display: inline-block;
+  margin: 0 3px;
+}
+
+/* 信纸底部签名 */
+.letter-footer {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 14px;
+  color: #c0a080;
+  letter-spacing: 2px;
+  font-style: italic;
+}
+
+/* 信件关闭按钮 */
+.letter-close {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #ff6b81;
+  color: #ff6b81;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s;
+}
+.letter-close:hover {
+  transform: scale(1.1);
+  background: #ff6b81;
+  color: #fff;
+}
+
+/* ============ 右上角信件按钮 ============ */
+.letter-btn {
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  z-index: 150;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #ff6b6b, #ffd700);
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(255, 107, 107, 0.5);
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.letter-btn:hover {
+  transform: scale(1.1) rotate(-5deg);
+  box-shadow: 0 6px 25px rgba(255, 107, 107, 0.7);
+}
+.letter-btn .badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 14px;
+  height: 14px;
+  background: #ff4757;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  display: none;
+}
+.letter-btn .badge.show {
+  display: block;
+  animation: badgePulse 1s ease-in-out infinite;
+}
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+</style>
+</head>
+<body>
+
+<canvas id="fireworks"></canvas>
+
+<div class="title">🎉 生日快乐 🎉</div>
+
+<div class="cake-container">
+  <!-- 数字18蜡烛 -->
+  <div class="candle-18" id="candle18">
+    <div class="digit-1">
+      <div class="flame" id="flame1"></div>
+      <div class="smoke" id="smoke1"></div>
+    </div>
+    <div class="digit-8">
+      <div class="ring top"></div>
+      <div class="ring bottom"></div>
+      <div class="flame" id="flame8"></div>
+      <div class="smoke" id="smoke8"></div>
+    </div>
+  </div>
+
+  <!-- 精致蛋糕 -->
+  <div class="cake">
+    <div class="cake-top"></div>
+    <div class="cake-mid"></div>
+    <div class="cake-bottom"></div>
+  </div>
+  <div class="plate"></div>
+</div>
+
+<div class="hint" id="hint">💨 点击蜡烛吹灭 / 重新点燃</div>
+<div class="blessing">✨</div>
+
+<!-- 右上角信件按钮 -->
+<button class="letter-btn" id="letterBtn" title="打开信件">
+  💌
+  <span class="badge" id="badge"></span>
+</button>
+
+<!-- 信件弹窗 -->
+<div class="letter-overlay" id="letterOverlay">
+  <div class="letter-card">
+    <div class="letter-header">
+      <span class="stamp">💌</span>
+      <div class="letter-title">生日快乐</div>
+    </div>
+    <div class="letter-body">
+     新的一岁我希望你可以勇敢的做自己，在这玫瑰与荆棘相交的路上，我们好像有小部分的快乐和数不清的小小烦恼，在你无数个动摇的瞬间，我希望你明白，你快乐才是最大的快乐！<br>
+  
+      一岁有一岁的味道，一站有一站的风景，花会沿路盛开，以后的路也是，多少岁不重要，岁岁平安才重要！愿你生日快乐，事事胜意，岁岁安澜<br>
+      <span class="heart">💖</span> 永远开心 <span class="heart">💖</span>
+    </div>
+    <div class="letter-footer">—— hxc</div>
+    <button class="letter-close" id="letterClose">✕</button>
+  </div>
+</div>
+
+<button class="music-btn" id="musicBtn">🎵</button>
+
+<script>
+// ============ 烟花特效 ============
+const canvas = document.getElementById('fireworks');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const particles = [];
+
+function createFirework() {
+  const x = Math.random() * canvas.width;
+  const y = Math.random() * canvas.height * 0.4;
+  const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#a18cd1', '#ff8c00', '#ff69b4'];
+  for (let i = 0; i < 50; i++) {
+    const angle = (Math.PI * 2 * i) / 50;
+    const speed = 1 + Math.random() * 4;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      life: 1,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      size: Math.random() * 1 + 1
+    });
+  }
+}
+
+function animate() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.05;
+    p.life -= 0.008;
+    if (p.life <= 0) { particles.splice(i, 1); continue; }
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(animate);
+}
+setInterval(createFirework, 550);
+animate();
+
+// ============ 气球 ============
+const colors = ['#ff6b6b', '#ffd700', '#4ecdc4', '#a8e6cf', '#ff8fa3', '#87ceeb'];
+for (let i = 0; i < 12; i++) {
+  const b = document.createElement('div');
+  b.className = 'balloon';
+  const size = Math.random() * 30 + 25;
+  b.style.width = size + 'px';
+  b.style.height = size * 1.2 + 'px';
+  b.style.left = Math.random() * 100 + '%';
+  b.style.background = colors[Math.floor(Math.random() * colors.length)];
+  b.style.animationDuration = (Math.random() * 8 + 8) + 's';
+  b.style.animationDelay = (Math.random() * 8) + 's';
+  document.body.appendChild(b);
+}
+
+// ============ 蜡烛吹灭/点燃 ============
+const candle18 = document.getElementById('candle18');
+const flame1 = document.getElementById('flame1');
+const flame8 = document.getElementById('flame8');
+const smoke1 = document.getElementById('smoke1');
+const smoke8 = document.getElementById('smoke8');
+const hint = document.getElementById('hint');
+const badge = document.getElementById('badge');
+let isLit = true;
+
+candle18.addEventListener('click', function(e) {
+  if (isLit) {
+    // 吹灭蜡烛
+    isLit = false;
+    flame1.style.opacity = '0';
+    flame1.style.transform = 'translateX(-50%) scale(0)';
+    flame1.style.animation = 'none';
+    flame1.style.boxShadow = 'none';
+
+    flame8.style.opacity = '0';
+    flame8.style.transform = 'translateX(-50%) scale(0)';
+    flame8.style.animation = 'none';
+    flame8.style.boxShadow = 'none';
+
+    // 烟雾效果
+    smoke1.classList.remove('active');
+    smoke8.classList.remove('active');
+    void smoke1.offsetWidth;
+    void smoke8.offsetWidth;
+    smoke1.classList.add('active');
+    smoke8.classList.add('active');
+
+    hint.textContent = '🎂 蜡烛已吹灭，点击重新点燃';
+    badge.classList.add('show');
+  } else {
+    // 重新点燃
+    isLit = true;
+    flame1.style.opacity = '1';
+    flame1.style.transform = 'translateX(-50%) scale(1)';
+    flame1.style.animation = 'flicker 0.3s ease-in-out infinite alternate';
+    flame1.style.boxShadow = '0 0 20px #ffaa00, 0 0 40px #ff6600, 0 0 60px rgba(255, 100, 0, 0.5)';
+
+    flame8.style.opacity = '1';
+    flame8.style.transform = 'translateX(-50%) scale(1)';
+    flame8.style.animation = 'flicker 0.3s ease-in-out infinite alternate';
+    flame8.style.boxShadow = '0 0 20px #ffaa00, 0 0 40px #ff6600, 0 0 60px rgba(255, 100, 0, 0.5)';
+
+    hint.textContent = '💨 点击蜡烛吹灭 / 重新点燃';
+    badge.classList.remove('show');
+  }
+});
+
+// ============ 信件弹窗 ============
+const letterOverlay = document.getElementById('letterOverlay');
+const letterBtn = document.getElementById('letterBtn');
+const letterClose = document.getElementById('letterClose');
+
+function openLetter() {
+  letterOverlay.classList.add('show');
+  badge.classList.remove('show');
+}
+
+function closeLetter() {
+  letterOverlay.classList.remove('show');
+}
+
+// 右上角按钮点击打开信件
+letterBtn.addEventListener('click', function() {
+  openLetter();
+});
+
+// 关闭按钮
+letterClose.addEventListener('click', function(e) {
+  e.stopPropagation();
+  closeLetter();
+});
+
+// 点击遮罩关闭
+letterOverlay.addEventListener('click', function(e) {
+  if (e.target === letterOverlay) {
+    closeLetter();
+  }
+});
+
+// ============ 生日快乐音乐 ============
+let audioCtx = null;
+let state = 0; // 0=未播放, 1=播放中, 2=已停止
+let stopTimer = null;
+
+function playBirthdaySong() {
+  // 第1次点击：播放
+  if (state === 0) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    state = 1;
+    scheduleNotes();
+    return;
+  }
+
+  // 第2次点击：停止（重置）
+  if (state === 1) {
+    if (stopTimer) { clearTimeout(stopTimer); stopTimer = null; }
+    audioCtx.close();
+    audioCtx = null;
+    state = 2;
+    return;
+  }
+
+  // 第3次点击：重新播放
+  if (state === 2) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    state = 1;
+    scheduleNotes();
+    return;
+  }
+}
+
+function scheduleNotes() {
+  const notes = [
+    { f: 523.25, d: 0.4 }, { f: 523.25, d: 0.4 }, { f: 587.33, d: 0.6 }, { f: 523.25, d: 0.6 },
+    { f: 698.46, d: 0.6 }, { f: 659.26, d: 1.0 },
+    { f: 523.25, d: 0.4 }, { f: 523.25, d: 0.4 }, { f: 587.33, d: 0.6 }, { f: 523.25, d: 0.6 },
+    { f: 783.99, d: 0.6 }, { f: 698.46, d: 1.0 },
+    { f: 523.25, d: 0.4 }, { f: 523.25, d: 0.4 }, { f: 1046.5, d: 0.6 }, { f: 880, d: 0.6 },
+    { f: 698.46, d: 0.6 }, { f: 659.26, d: 0.6 }, { f: 587.33, d: 1.0 },
+    { f: 987.77, d: 0.4 }, { f: 987.77, d: 0.4 }, { f: 880, d: 0.6 }, { f: 698.46, d: 0.6 },
+    { f: 783.99, d: 0.6 }, { f: 698.46, d: 1.2 }
+  ];
+
+  let time = audioCtx.currentTime + 0.1;
+  notes.forEach(n => {
+    [1, 2, 3, 4].forEach((harmonic, i) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = n.f * harmonic;
+      const vol = i === 0 ? 0.4 : 0.12 / harmonic;
+      gain.gain.setValueAtTime(vol, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + n.d);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(time);
+      osc.stop(time + n.d);
+    });
+    time += n.d;
+  });
+
+  // 播完一遍后自动循环播放
+  stopTimer = setTimeout(() => {
+    if (state === 1) {
+      scheduleNotes(); // 循环：重新调度下一遍
+    }
+  }, (time - audioCtx.currentTime) * 1000 + 300);
+}
+
+document.getElementById('musicBtn').addEventListener('click', playBirthdaySong);
+</script>
+</body>
+</html>
